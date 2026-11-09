@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Como cadastrar produtos no estoque do AdmSpot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Sora:wght@700;800&display=swap">
+<style>
+:root{
+  --blue:#00357A;--ink:#1F2A37;--muted:#4B5563;--border:#D9E2EC;
+  --teal:#00DBB2;--mint:#E6FBF6;--ease:cubic-bezier(.22,1,.36,1);
+  --w:270px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#F5F8FB;font:17px/1.65 Inter,system-ui,-apple-system,sans-serif;color:var(--ink);-webkit-font-smoothing:antialiased}
+
+.guia{max-width:1200px;margin:0 auto;padding:56px 20px 72px}
+.guia-selo{display:inline-block;font-size:13px;font-weight:800;letter-spacing:1.2px;text-transform:uppercase;color:var(--blue);background:var(--mint);border:1px solid var(--teal);border-radius:100px;padding:7px 16px}
+.guia h1{font-family:Sora,Inter,sans-serif;color:var(--blue);font-size:28px;line-height:1.2;letter-spacing:-.02em;margin:14px 0 10px}
+@media (min-width:720px){.guia h1{font-size:36px}}
+.guia-sub{margin:0;color:var(--muted);font-size:18px}
+.guia-progresso{height:6px;background:var(--border);border-radius:6px;overflow:hidden;margin:24px 0 10px}
+.guia-progresso span{display:block;height:100%;width:20%;background:var(--teal);border-radius:6px;transition:width .5s var(--ease)}
+.guia-contador{font-size:15px;color:var(--blue);font-weight:700;margin:0 0 20px;text-transform:uppercase;letter-spacing:.6px}
+.guia-passo-titulo{font-family:Sora,Inter,sans-serif;color:var(--blue);font-size:26px;line-height:1.25;margin:0 0 10px}
+@media (min-width:720px){.guia-passo-titulo{font-size:30px}}
+.guia-passo-texto{margin:0 0 18px;font-size:18px;color:var(--ink)}
+
+/* Bloco "Como fazer" */
+.guia-detalhes{background:var(--mint);border-left:5px solid var(--teal);border-radius:12px;padding:16px 20px;margin:0 0 24px}
+.guia-detalhes-titulo{margin:0 0 8px;font-size:14px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--blue)}
+.guia-detalhes ol{margin:0;padding-left:22px}
+.guia-detalhes li{font-size:17px;line-height:1.6;margin:0 0 6px;color:var(--ink)}
+.guia-detalhes li:last-child{margin-bottom:0}
+
+/* Quadro da tela */
+.guia-tela{position:relative;width:100%;border-radius:16px;border:1px solid var(--border);box-shadow:0 18px 40px rgba(0,53,122,.12);background:#fff;padding:0}
+.guia-tela img{display:block;width:100%;height:auto;border-radius:15px;opacity:0;transition:opacity .45s var(--ease)}
+.guia-tela img.ativa{opacity:1}
+.guia-dica{font-size:15px;color:var(--muted);margin:14px 0 0;text-align:center}
+
+/* Balões de ação e informativos */
+.guia-ponto{position:absolute;width:0;height:0;z-index:2}
+.guia-dot{position:absolute;left:-16px;top:-16px;width:32px;height:32px;border-radius:50%;background:var(--teal);color:var(--blue);border:2px solid #fff;font:800 15px Inter,sans-serif;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,53,122,.35);animation:guiaEntra .5s var(--ease) both;animation-delay:var(--d,0s)}
+.guia-dot::after{content:"";position:absolute;inset:-8px;border-radius:50%;border:2px solid var(--teal);animation:guiaPulso 1.8s var(--ease) infinite;animation-delay:var(--d,0s)}
+.guia-pos{position:absolute;z-index:3}
+.guia-pos.d-baixo{top:28px;left:50%;transform:translateX(-50%)}
+.guia-pos.d-cima{bottom:28px;left:50%;transform:translateX(-50%)}
+.guia-pos.d-dir{left:28px;top:50%;transform:translateY(-50%)}
+.guia-pos.d-esq{right:28px;top:50%;transform:translateY(-50%)}
+.guia-bolha{position:relative;width:var(--w);background:#fff;border:2px solid var(--teal);border-radius:14px;padding:12px 15px;font-size:16px;font-weight:700;color:var(--blue);line-height:1.45;box-shadow:0 12px 28px rgba(0,53,122,.2);animation:guiaEntra .5s var(--ease) both;animation-delay:calc(var(--d,0s) + .15s);transform-origin:center}
+.guia-bolha p{margin:0}
+.guia-bolha::after{content:"";position:absolute;width:0;height:0;border:9px solid transparent}
+.guia-bolha{--seta:var(--teal)}
+.guia-ponto.acao .guia-bolha{background:var(--blue);color:#fff;border-color:var(--teal);--seta:var(--blue)}
+.d-baixo .guia-bolha::after{top:-20px;left:50%;margin-left:-9px;border-bottom-color:var(--seta)}
+.d-cima .guia-bolha::after{bottom:-20px;left:50%;margin-left:-9px;border-top-color:var(--seta)}
+.d-dir .guia-bolha::after{left:-20px;top:50%;margin-top:-9px;border-right-color:var(--seta)}
+.d-esq .guia-bolha::after{right:-20px;top:50%;margin-top:-9px;border-left-color:var(--seta)}
+@keyframes guiaEntra{
+  from{opacity:0;transform:scale(.8)}
+  to{opacity:1;transform:scale(1)}
+}
+@keyframes guiaPulso{
+  0%{transform:scale(.85);opacity:1}
+  100%{transform:scale(1.6);opacity:0}
+}
+
+.guia-controles{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:26px;flex-wrap:wrap}
+.guia-btn{background:var(--teal);color:var(--blue);border:0;border-radius:12px;padding:14px 30px;font:700 17px Inter,sans-serif;cursor:pointer;transition:transform .2s var(--ease),box-shadow .3s ease,opacity .3s ease;letter-spacing:.2px}
+.guia-btn:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(0,219,178,.35)}
+.guia-btn:active{transform:scale(.97)}
+.guia-btn:disabled{opacity:.4;pointer-events:none}
+.guia-btn.sec{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+.guia-btn:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.guia-pontinhos{display:flex;gap:8px}
+.guia-pontinhos i{width:10px;height:10px;border-radius:50%;background:var(--border);transition:background .3s ease,width .3s var(--ease)}
+.guia-pontinhos i.ativo{background:var(--teal);width:26px;border-radius:6px}
+#guiaCal{font:600 13px Inter,sans-serif;color:var(--blue);background:var(--mint);border-radius:8px;padding:8px 12px;margin:12px 0 0}
+
+@media (max-width:719px){
+  :root{--w:215px}
+  .guia-bolha{font-size:14.5px;padding:10px 12px}
+  .guia-dot{width:28px;height:28px;font-size:13px;left:-14px;top:-14px}
+  .guia-btn{padding:13px 22px;font-size:16px}
+  .guia-detalhes li{font-size:16px}
+}
+@media (prefers-reduced-motion:reduce){
+  .guia-dot,.guia-dot::after,.guia-bolha{animation:none!important}
+  .guia-tela img,.guia-btn,.guia-progresso span{transition:none!important}
+}
+
+/* Visual da página */
+body{
+  background:
+    radial-gradient(circle at 12% 8%, rgba(0,219,178,.14), transparent 38%),
+    radial-gradient(circle at 92% 92%, rgba(0,53,122,.10), transparent 42%),
+    radial-gradient(rgba(0,53,122,.07) 1px, transparent 1px) 0 0/22px 22px,
+    #F5F8FB;
+  min-height:100vh;
+}
+.guia{
+  background:#fff;
+  border-radius:24px;
+  box-shadow:0 24px 60px rgba(0,53,122,.10), 0 2px 6px rgba(0,53,122,.04);
+  margin-top:40px;
+  margin-bottom:40px;
+  padding-left:clamp(20px,4vw,48px);
+  padding-right:clamp(20px,4vw,48px);
+}
+.guia-selo{box-shadow:0 4px 14px rgba(0,219,178,.18)}
+@media (max-width:719px){
+  .guia{margin-top:16px;margin-bottom:16px;border-radius:18px}
+}
+</style>
+</head>
+<body>
+<main class="guia" id="guia" tabindex="-1">
+  <span class="guia-selo">Veja como funciona</span>
+  <h1>Como cadastrar produtos no estoque do AdmSpot</h1>
+  <p class="guia-sub">Siga os 10 passos e clique em Próximo para avançar.</p>
+
+  <div class="guia-progresso" aria-hidden="true"><span id="guiaBarra"></span></div>
+  <p class="guia-contador" id="guiaContador" aria-live="polite">Passo 1 de 5</p>
+
+  <h2 class="guia-passo-titulo" id="guiaTitulo"></h2>
+  <p class="guia-passo-texto" id="guiaTexto"></p>
+
+  <div class="guia-detalhes">
+    <p class="guia-detalhes-titulo">Como fazer</p>
+    <ol id="guiaDetalhes"></ol>
+  </div>
+
+  <div class="guia-tela" id="guiaTela">
+    <img id="guiaImg" alt="" src="">
+  </div>
+  <p class="guia-dica">Os números na tela indicam onde você deve clicar.</p>
+  <p id="guiaCal" hidden></p>
+
+  <div class="guia-controles">
+    <button type="button" class="guia-btn sec" id="guiaVoltar">Voltar</button>
+    <div class="guia-pontinhos" id="guiaPontinhos" aria-hidden="true"></div>
+    <button type="button" class="guia-btn" id="guiaProximo">Próximo</button>
+  </div>
+</main>
+<script>
+(function(){
+  'use strict';
+  /*
+    tipo: "acao" = balão de ação (o que clicar), "info" = balão informativo
+    dir = onde o balão aparece em relação ao ponto: "baixo", "cima", "dir" ou "esq"
+    x = posição horizontal do ponto (% da largura da imagem)
+    y = posição vertical do ponto (% da altura da imagem)
+    Para ajustar: abra a página com ?calibrar no endereço e clique no alvo.
+  */
+ var passos = [
+    {
+  img: "assets/Passo0_estoqueProdutos-cadastrado.png",
+  titulo: "Veja como fica a lista de Produtos",
+  texto: "Depois de cadastrados, os produtos aparecem nesta lista, com estoque, custo, preço e status.",
+  detalhes: [
+    "Cada linha mostra o produto, o tipo, a categoria, o estoque, o custo, o preço e o status.",
+    "Se o estoque estiver abaixo do mínimo, aparece a etiqueta Baixo ao lado da quantidade.",
+    "Use os ícones da última coluna para Editar, Duplicar ou Excluir um produto."
+  ],
+  pontos: [
+    { tipo: "info", x: 87.5, y: 10, dir: "cima", texto: "Botões do topo: Importar XML (nota fiscal) e + Novo produto (cadastro manual)." },
+    { tipo: "info", x: 17.7, y: 23.4, dir: "esq", texto: "Indicadores: total de produtos, valor em estoque e quantos estão abaixo do mínimo." },
+    { tipo: "info", x: 98.6, y: 52.3, dir: "dir", texto: "Ícones: Editar, Duplicar e Excluir o produto." }
+  ]
+},
+  {
+    img: "assets/Passo1_estoqueProdutos-lista.png",
+    titulo: "Acesse a lista de Produtos",
+    texto: "Os produtos ficam no menu Estoque. Antes de cadastrar, confira se o item já existe.",
+    detalhes: [
+      "No menu lateral, em Estoque, clique em Produtos.",
+      "Use o campo de busca para procurar por nome, SKU ou código de barras.",
+      "Se o produto não estiver cadastrado, clique em + Novo produto, no canto superior direito."
+    ],
+    pontos: [
+      { tipo: "acao", x: 99.4, y: 14.4, dir: "dir", texto: "Clique em + Novo produto." }
+    ]
+  },
+  {
+    img: "assets/Passo3_estoqueNovoProduto.png",
+    titulo: "Digite o nome do produto",
+    texto: "Preencha a identificação do produto. O nome é obrigatório.",
+    detalhes: [
+      "Em Tipo, mantenha Produto acabado / revenda ou escolha o tipo correto.",
+      "Digite o Nome do produto (campo marcado com *).",
+      "Preencha o SKU, o Código de barras (EAN) e, se for pesável, a Referência de balança (PLU).",
+      "Escolha Marca, Categoria, Fornecedor e Armazém. Se não existir, digite para criar.",
+      "Em Unidade e estoque, informe a Unidade de medida, o Estoque mínimo e o Estoque máximo."
+    ],
+    pontos: [
+      { tipo: "acao", x: 65, y: 16.7, dir: "cima", texto: "Digite o nome do produto." }
+    ]
+  },
+  {
+    img: "assets/Passo3_estoqueNovoProduto-info.png",
+    titulo: "Defina o estoque mínimo e máximo",
+    texto: "Os valores de estoque ajudam a saber quando repor o produto.",
+    detalhes: [
+      "Em Unidade e estoque, escolha a Unidade de medida.",
+      "Informe o Estoque mínimo e o Estoque máximo.",
+      "Quando o estoque ficar abaixo do mínimo, o produto aparece no indicador Abaixo do mínimo."
+    ],
+    pontos: [
+      { tipo: "info", x: 49, y: 77, dir: "baixo", texto: "Estoque mínimo: avisa quando o produto estiver abaixo desse valor." }
+    ]
+  },
+  {
+    img: "assets/Passo4_estoqueNovoProduto-precificacao.png",
+    titulo: "Informe o preço de venda",
+    texto: "Esta parte é a continuação do formulário. Informe o custo e o preço.",
+    detalhes: [
+      "Em Pesagem, informe o Peso líquido e o Peso bruto, se o produto for pesado.",
+      "Em Precificação, preencha o Custo unitário.",
+      "Digite o Preço de venda.",
+      "Se houver desconto por quantidade, use + Adicionar faixa."
+    ],
+    pontos: [
+      { tipo: "acao", x: 80.5, y: 36.2, dir: "baixo", texto: "Informe o preço de venda." }
+    ]
+  },
+  {
+    img: "assets/Passo4_estoqueNovoProduto-info.png",
+    titulo: "Entenda o preço promocional",
+    texto: "O preço promocional é opcional. Preencha apenas se houver promoção.",
+    detalhes: [
+      "Em Precificação, localize o campo Preço promocional.",
+      "Preencha somente se o produto estiver em promoção.",
+      "Quando for menor que o preço de venda, ele passa a ser o preço cobrado e o produto entra na vitrine Promoções."
+    ],
+    pontos: [
+      { tipo: "info", x: 29.8, y: 79.2, dir: "dir", texto: "Quando menor que o preço de venda, vira o preço cobrado." }
+    ]
+  },
+   {
+    img: "assets/Passo5_estoqueNovoProduto-info.png",
+    titulo: "Controle a validade",
+    texto: "Os campos de validade ajudam a controlar o vencimento dos produtos.",
+    detalhes: [
+      "Informe a Validade (meses) para calcular o vencimento.",
+      "Preencha a Data de fabricação e a Data de validade, se tiver.",
+      "Use Corredor, Prateleira e Posição para localizar o produto no estoque."
+    ],
+    pontos: [
+      { tipo: "info", x: 31.3, y: 37, dir: "cima", texto: "Validade em meses ajuda a controlar o vencimento." }
+    ]
+  },
+  {
+    img: "assets/Passo5_estoqueNovoProduto-validade.png",
+    titulo: "Salve o produto",
+    texto: "Preencha a validade e a localização, se necessário, e depois salve.",
+    detalhes: [
+      "Em Validade e localização, informe a Validade (meses), a Data de fabricação e a Data de validade.",
+      "Preencha Corredor, Prateleira e Posição, se o produto ficar em local fixo.",
+      "Marque Exportar para balança se o produto for usado na balança do PDV.",
+      "Clique em Salvar para concluir. Para desistir, clique em Cancelar."
+    ],
+    pontos: [
+      { tipo: "acao", x: 96.6, y: 91.6, dir: "cima", texto: "Clique em Salvar para concluir." }
+    ]
+  },
+  {
+    img: "assets/Passo6_estoqueProdutos-importarXML.png",
+    titulo: "Importe os produtos pela nota fiscal (opcional)",
+    texto: "Se você tem uma NF-e de compra, pode importar o XML em vez de digitar cada produto.",
+    detalhes: [
+      "Na lista de Produtos, clique em Importar XML, no canto superior esquerdo do botão + Novo produto.",
+      "A janela de importação será aberta.",
+      "Se preferir cadastrar manualmente, use + Novo produto."
+    ],
+    pontos: [
+      { tipo: "acao", x: 75.9, y: 14.4, dir: "esq", texto: "Clique em Importar XML." }
+    ]
+  },
+   {
+    img: "assets/Passo7_estoqueImportarXML.png",
+    titulo: "Envie o XML da NF-e",
+    texto: "Na janela Importar produtos por XML, escolha o arquivo da nota fiscal.",
+    detalhes: [
+      "Clique na área tracejada ou arraste o arquivo XML da NF-e.",
+      "Você pode selecionar mais de um arquivo .xml de uma vez.",
+      "Revise os itens antes de salvar. Os impostos vêm preenchidos do XML.",
+      "Para desistir, clique em Cancelar."
+    ],
+    pontos: [
+      { tipo: "acao", x: 40.1, y: 49.6, dir: "esq", texto: "Arraste o XML da NF-e aqui ou clique para escolher." }
+    ]
+  }
+  
+];
+
+  var total = passos.length;
+  var atual = 0;
+  var CAL = /calibrar/.test(window.location.search);
+
+  var tela      = document.getElementById("guiaTela");
+  var img       = document.getElementById("guiaImg");
+  var titulo    = document.getElementById("guiaTitulo");
+  var texto     = document.getElementById("guiaTexto");
+  var detalhes  = document.getElementById("guiaDetalhes");
+  var barra     = document.getElementById("guiaBarra");
+  var contador  = document.getElementById("guiaContador");
+  var pontinhos = document.getElementById("guiaPontinhos");
+  var btnProx   = document.getElementById("guiaProximo");
+  var btnVolt   = document.getElementById("guiaVoltar");
+  var guia      = document.getElementById("guia");
+  var cal       = document.getElementById("guiaCal");
+
+  for (var k = 0; k < total; k++) {
+    pontinhos.appendChild(document.createElement("i"));
+  }
+
+  function limparPontos(){
+    tela.querySelectorAll(".guia-ponto").forEach(function(el){ el.remove(); });
+  }
+
+  function desenharPontos(p){
+    limparPontos();
+    p.pontos.forEach(function(pt, i){
+      var ponto = document.createElement("div");
+      ponto.className = "guia-ponto" + (pt.tipo === "acao" ? " acao" : "");
+      ponto.style.left = pt.x + "%";
+      ponto.style.top  = pt.y + "%";
+      ponto.style.setProperty("--d", (0.3 + i * 0.25) + "s");
+
+      var dot = document.createElement("span");
+      dot.className = "guia-dot";
+      dot.textContent = String(i + 1);
+
+      var pos = document.createElement("div");
+      pos.className = "guia-pos d-" + pt.dir;
+
+      var bolha = document.createElement("div");
+      bolha.className = "guia-bolha";
+      var p1 = document.createElement("p");
+      p1.textContent = pt.texto;
+      bolha.appendChild(p1);
+      pos.appendChild(bolha);
+
+      ponto.appendChild(dot);
+      ponto.appendChild(pos);
+      tela.appendChild(ponto);
+    });
+  }
+
+  img.addEventListener("load", function(){
+    img.classList.add("ativa");
+    desenharPontos(passos[atual]);
+  });
+
+  function mostrar(i){
+    atual = Math.max(0, Math.min(total - 1, i));
+    var p = passos[atual];
+
+    img.classList.remove("ativa");
+    limparPontos();
+    img.alt = "Tela " + (atual + 1) + ": " + p.titulo;
+    img.src = p.img;
+
+    titulo.textContent = p.titulo;
+    texto.textContent  = p.texto;
+
+    detalhes.innerHTML = "";
+    p.detalhes.forEach(function(item){
+      var li = document.createElement("li");
+      li.textContent = item;
+      detalhes.appendChild(li);
+    });
+
+    contador.textContent = "Passo " + (atual + 1) + " de " + total;
+    barra.style.width = ((atual + 1) / total * 100) + "%";
+
+    Array.prototype.forEach.call(pontinhos.children, function(b, j){
+      b.classList.toggle("ativo", j === atual);
+    });
+
+    btnVolt.disabled = atual === 0;
+    btnProx.textContent = atual === total - 1 ? "Concluir" : "Próximo";
+  }
+
+  btnProx.addEventListener("click", function(){
+    if (atual === total - 1) { mostrar(0); return; }
+    mostrar(atual + 1);
+  });
+  btnVolt.addEventListener("click", function(){ mostrar(atual - 1); });
+
+  guia.addEventListener("keydown", function(e){
+    if (e.key === "ArrowRight") btnProx.click();
+    if (e.key === "ArrowLeft" && !btnVolt.disabled) btnVolt.click();
+  });
+
+  if (CAL) {
+    cal.hidden = false;
+    cal.textContent = "Modo calibração: clique em um alvo na tela.";
+    tela.addEventListener("click", function(e){
+      if (e.target !== img) return;
+      var r = img.getBoundingClientRect();
+      var x = ((e.clientX - r.left) / r.width * 100).toFixed(1);
+      var y = ((e.clientY - r.top) / r.height * 100).toFixed(1);
+      cal.textContent = "Passo " + (atual + 1) + " → x: " + x + ", y: " + y;
+    });
+  }
+
+  mostrar(0);
+})();
+</script>
+</body>
+</html>
